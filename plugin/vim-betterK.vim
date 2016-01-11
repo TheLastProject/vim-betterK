@@ -11,7 +11,8 @@
 "You should have received a copy of the GNU General Public License
 "along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-let s:keywordhelpers = {'python': 'pydoc', 'ruby': 'ri --format=rdoc'}
+let s:keywordhelpers = {'haskell': 'hoogle search --info', 'python': 'pydoc', 'ruby': 'ri --format=rdoc'}
+let s:failuretext = {'haskell': 'No results found', 'python': 'no Python documentation found for'}
 
 function! GetKeywordInfo(mode)
     if a:mode ==# 'n'
@@ -44,8 +45,8 @@ function! GetKeywordInfo(mode)
 		"Run the helper
 		let s:result = system(s:keywordhelpers[&filetype] . ' ' . shellescape(s:selection))
 
-        "Don't put error in buffer (unfortunately, PyDoc always exits with 0)
-        if v:shell_error != 0 || s:result =~ 'no Python documentation found for'
+        "Don't put error in buffer
+        if v:shell_error != 0 || s:result =~ s:failuretext[&filetype]
             echo 'Sorry, no result found for ' . s:selection
             return
         endif
