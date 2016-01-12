@@ -153,7 +153,7 @@ vim.command('let l:parsedresult = "%s"' % parsedJSON)
 EOF
 
     if v:shell_error != 0 || l:jsonparsefailed == 1 || !empty(a:error) && l:result =~ a:error
-        return [2, 'No result found for ' . a:selection]
+        return [3, 'No result found for ' . a:selection]
     endif
 
     return [0, l:parsedresult]
