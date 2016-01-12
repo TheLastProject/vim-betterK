@@ -17,7 +17,8 @@ If you're using Vundle, add
     Plugin 'https://notabug.org/SylvieLorxu/vim-betterK.git'
 
 ## Default viewers
-Haskell: hoogle
+C: man 3; man 2
+Haskell: hoogle; hoogle (online)
 Python: pydoc
 Ruby: ri
 vim: built-in :help

@@ -12,9 +12,12 @@
 "along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 let s:keywordhelpers = {
+    \ 'c':
+    \   [{'name': 'man 3', 'type': 'command', 'query': 'man 3 %s', 'error': 'No manual entry for'},
+    \    {'name': 'man 2', 'type': 'command', 'query': 'man 2 %s', 'error': 'No manual entry for'}],
     \ 'haskell':
     \   [{'name': 'hoogle', 'type': 'command', 'query': 'hoogle search --info %s', 'error': 'No results found'},
-    \    {'name': 'hoogle online', 'type': 'jsonurl', 'query': 'https://www.haskell.org/hoogle/?mode=json&hoogle=%s&count=1', 'result': 'results/0/docs'}],
+    \    {'name': 'hoogle (online)', 'type': 'jsonurl', 'query': 'https://www.haskell.org/hoogle/?mode=json&hoogle=%s&count=1', 'result': 'results/0/docs'}],
     \ 'python':
     \   [{'name': 'pydoc', 'type': 'command', 'query': 'pydoc %s', 'error': 'no Python documentation found for'}],
     \ 'ruby':
