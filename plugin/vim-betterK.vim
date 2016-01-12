@@ -25,17 +25,17 @@ function! GetKeywordInfo(mode)
     if a:mode ==# 'n'
         let l:selection = expand('<cword>')
     elseif a:mode ==# 'v'
-		"Public domain: http://stackoverflow.com/a/6271254
-		let [lnum1, col1] = getpos("'<")[1:2]
-		let [lnum2, col2] = getpos("'>")[1:2]
-		let lines = getline(lnum1, lnum2)
-		let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
-		let lines[0] = lines[0][col1 - 1:]
-		let l:selection = join(lines, " ")
-	else
+        "Public domain: http://stackoverflow.com/a/6271254
+        let [lnum1, col1] = getpos("'<")[1:2]
+        let [lnum2, col2] = getpos("'>")[1:2]
+        let lines = getline(lnum1, lnum2)
+        let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
+        let lines[0] = lines[0][col1 - 1:]
+        let l:selection = join(lines, " ")
+    else
         echo 'GetKeywordInfo was called with an invalid mode'
-		return
-	endif
+        return
+    endif
 
     "Use the internal :help command for vim, instead of a third-party command
     if &filetype ==# 'vim'
@@ -100,7 +100,7 @@ function! RunKeywordLookupCommand(query, error, selection)
         return [1, 'Cannot use, not installed']
     endif
 
-	let l:result = system(substitute(a:query, '%s', shellescape(a:selection), ''))
+    let l:result = system(substitute(a:query, '%s', shellescape(a:selection), ''))
 
     if v:shell_error != 0 || !empty(a:error) && l:result =~ a:error
         return [2, 'No result found for ' . a:selection]
