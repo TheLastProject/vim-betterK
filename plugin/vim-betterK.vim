@@ -13,7 +13,8 @@
 
 let s:keywordhelpers = {
     \ 'haskell':
-    \   [{'name': 'hoogle', 'type': 'command', 'query': 'hoogle search --info %s', 'error': 'No results found'}],
+    \   [{'name': 'hoogle', 'type': 'command', 'query': 'hoogle search --info %s', 'error': 'No results found'},
+    \    {'name': 'hoogle online', 'type': 'jsonurl', 'query': 'https://www.haskell.org/hoogle/?mode=json&hoogle=%s&count=1', 'result': 'results/0/docs'}],
     \ 'python':
     \   [{'name': 'pydoc', 'type': 'command', 'query': 'pydoc %s', 'error': 'no Python documentation found for'}],
     \ 'ruby':
@@ -54,7 +55,12 @@ function! GetKeywordInfo(mode)
 
             "Execute proper type for command (currently, only one type exists)
             if helper['type'] ==# 'command'
-                let l:result = RunKeywordLookupCommand(helper['query'], l:error, l:selection)
+                let l:result = s:RunKeywordLookupCommand(helper['query'], l:error, l:selection)
+            elseif helper['type'] ==# 'jsonurl'
+                let l:result = s:RunKeywordLookupJsonURL(helper['query'], helper['result'], l:error, l:selection)
+            else
+                let l:helperfails[helper['name']] = 'Invalid helper type'
+                continue
             endif
 
             "Check if the command returned an error
@@ -95,7 +101,7 @@ function! GetKeywordInfo(mode)
     endif
 endfunction
 
-function! RunKeywordLookupCommand(query, error, selection)
+function! s:RunKeywordLookupCommand(query, error, selection)
     if !executable(split(a:query, ' ')[0])
         return [1, 'Cannot use, not installed']
     endif
@@ -107,6 +113,50 @@ function! RunKeywordLookupCommand(query, error, selection)
     endif
 
     return [0, l:result]
+endfunction
+
+function! s:RunKeywordLookupJsonURL(query, result, error, selection)
+    if !has('python3')
+        return [1, 'Python 3 support is needed for JSON requests']
+    endif
+
+    if !executable('curl')
+        return [2, 'Dependency curl is not installed']
+    endif
+
+    let l:result = system('curl -s ' . shellescape(substitute(a:query, '%s', a:selection, '')))
+
+    let l:parsedresult = ''
+    let l:jsonparsefailed = 0
+
+python3 << EOF
+
+import vim
+import json
+parsedJSON = json.loads(vim.eval('l:result'))
+datalocation = vim.eval('a:result')
+
+for part in datalocation.split('/'):
+    try:
+        part = int(part)
+    except ValueError:
+        pass
+
+    try:
+        parsedJSON = parsedJSON[part]
+    except IndexError:
+        vim.command('let l:jsonparsefailed = 1')
+        break
+
+vim.command('let l:parsedresult = "%s"' % parsedJSON)
+
+EOF
+
+    if v:shell_error != 0 || l:jsonparsefailed == 1 || !empty(a:error) && l:result =~ a:error
+        return [2, 'No result found for ' . a:selection]
+    endif
+
+    return [0, l:parsedresult]
 endfunction
 
 nnoremap K :call GetKeywordInfo('n')<CR>
