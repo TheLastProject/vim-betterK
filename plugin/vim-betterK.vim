@@ -46,7 +46,7 @@ function! GetKeywordInfo(mode)
 		let s:result = system(s:keywordhelpers[&filetype] . ' ' . shellescape(s:selection))
 
         "Don't put error in buffer
-        if v:shell_error != 0 || s:result =~ s:failuretext[&filetype]
+        if v:shell_error != 0 || has_key(s:failuretext, &filetype) && s:result =~ s:failuretext[&filetype]
             echo 'Sorry, no result found for ' . s:selection
             return
         endif
