@@ -11,6 +11,8 @@
 "You should have received a copy of the GNU General Public License
 "along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h')
+
 let s:keywordhelpers = {
     \ 'c':
     \   [{'name': 'man 3', 'type': 'command', 'query': 'man 3 %s', 'error': 'No manual entry for'},
@@ -131,40 +133,21 @@ function! s:RunKeywordLookupJsonURL(query, result, error, selection)
         return [2, 'Python 3 support is needed for JSON requests']
     endif
 
-    if !executable('curl')
-        return [3, 'Dependency curl is not installed']
-    endif
-
-    let l:result = system('curl -s ' . shellescape(substitute(a:query, '%s', a:selection, '')))
+    let l:requesturl = substitute(a:query, '%s', a:selection, '')
 
     let l:parsedresult = ''
-    let l:jsonparsefailed = 0
+    let l:downloadfailed = ''
 
-python3 << EOF
+    "Download and parse JSON from l:requesturl. Fills in l:downloadfailed in
+    "case of error, otherwise puts result in l:parsedresult
+    exec 'py3file' . s:path . '/downloader.py'
 
-import vim
-import json
-parsedJSON = json.loads(vim.eval('l:result'))
-datalocation = vim.eval('a:result')
-
-for part in datalocation.split('/'):
-    try:
-        part = int(part)
-    except ValueError:
-        pass
-
-    try:
-        parsedJSON = parsedJSON[part]
-    except IndexError:
-        vim.command('let l:jsonparsefailed = 1')
-        break
-
-vim.command('let l:parsedresult = "%s"' % parsedJSON)
-
-EOF
-
-    if v:shell_error != 0 || l:jsonparsefailed == 1 || !empty(a:error) && l:result =~ a:error
-        return [4, 'No result found for ' . a:selection]
+    if !empty(l:downloadfailed) || !empty(a:error) && l:result =~ a:error
+        let l:errormessage = 'No result found for ' . a:selection
+        if !empty(l:downloadfailed)
+            let l:errormessage .= ': ' . l:downloadfailed
+        endif
+        return [3, l:errormessage]
     endif
 
     return [0, l:parsedresult]
