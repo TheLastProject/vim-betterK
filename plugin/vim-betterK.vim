@@ -119,12 +119,16 @@ function! s:RunKeywordLookupCommand(query, error, selection)
 endfunction
 
 function! s:RunKeywordLookupJsonURL(query, result, error, selection)
+    if !g:betterK_allow_online
+        return [1, 'Online checks are disabled. Set g:betterK_allow_online to 1 to allow online checks']
+    endif
+
     if !has('python3')
-        return [1, 'Python 3 support is needed for JSON requests']
+        return [2, 'Python 3 support is needed for JSON requests']
     endif
 
     if !executable('curl')
-        return [2, 'Dependency curl is not installed']
+        return [3, 'Dependency curl is not installed']
     endif
 
     let l:result = system('curl -s ' . shellescape(substitute(a:query, '%s', a:selection, '')))
@@ -156,11 +160,16 @@ vim.command('let l:parsedresult = "%s"' % parsedJSON)
 EOF
 
     if v:shell_error != 0 || l:jsonparsefailed == 1 || !empty(a:error) && l:result =~ a:error
-        return [3, 'No result found for ' . a:selection]
+        return [4, 'No result found for ' . a:selection]
     endif
 
     return [0, l:parsedresult]
 endfunction
+
+"Set defaults
+if !exists('g:betterK_allow_online')
+    let g:betterK_allow_online = 0
+endif
 
 nnoremap K :call GetKeywordInfo('n')<CR>
 vnoremap K :call GetKeywordInfo('v')<CR>
