@@ -171,5 +171,12 @@ if !exists('g:betterK_allow_online')
     let g:betterK_allow_online = 0
 endif
 
-nnoremap K :call GetKeywordInfo('n')<CR>
-vnoremap K :call GetKeywordInfo('v')<CR>
+if !exists('g:betterK_map_keys')
+    let g:betterK_map_keys = 1
+endif
+
+"Map keys
+if g:betterK_map_keys
+    nnoremap K :call GetKeywordInfo('n')<CR>
+    vnoremap K :call GetKeywordInfo('v')<CR>
+endif
