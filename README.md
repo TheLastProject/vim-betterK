@@ -19,6 +19,7 @@ If you're using Vundle, add
 ## Default viewers
 C: man 3; man 2
 Haskell: hoogle; hoogle (online)
+PHP: pman
 Python: pydoc
 Ruby: ri
 vim: built-in :help
