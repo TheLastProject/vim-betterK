@@ -18,6 +18,8 @@ let s:keywordhelpers = {
     \ 'haskell':
     \   [{'name': 'hoogle', 'type': 'command', 'query': 'hoogle search --info %s', 'error': 'No results found'},
     \    {'name': 'hoogle (online)', 'type': 'jsonurl', 'query': 'https://www.haskell.org/hoogle/?mode=json&hoogle=%s&count=1', 'result': 'results/0/docs'}],
+    \ 'perl':
+    \   [{'name': 'perldoc', 'type': 'command', 'query': 'perldoc -otext -f %s', 'error': 'No documentation found for'}],
     \ 'php':
     \   [{'name': 'pman', 'type': 'command', 'query': 'pman %s', 'error': 'No manual entry for'}],
     \ 'python':
