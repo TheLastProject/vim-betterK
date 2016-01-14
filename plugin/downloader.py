@@ -30,6 +30,11 @@ def downloadAndParseJSON():
             vim.command('let l:downloadfailed = "%s"' % 'The requested data was not found on the expected position')
             break
 
+    try:
+        parsedJSON = parsedJSON.replace('"', '\\"')
+    except AttributeError:
+        vim.command('let l:downloadfailed = "%s"' % 'The requested data was not found on the expected position')
+
     vim.command('let l:parsedresult = "%s"' % parsedJSON)
 
 downloadAndParseJSON()
