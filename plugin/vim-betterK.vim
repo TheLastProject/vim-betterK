@@ -27,7 +27,9 @@ let s:keywordhelpers = {
     \ 'python':
     \   [{'name': 'pydoc', 'type': 'command', 'query': 'pydoc %s', 'error': 'no Python documentation found for'}],
     \ 'ruby':
-    \   [{'name': 'ri', 'type': 'command', 'query': 'ri --format=rdoc %s'}]
+    \   [{'name': 'ri', 'type': 'command', 'query': 'ri --format=rdoc %s'}],
+    \ 'sh':
+    \   [{'name': 'man 1', 'type': 'command', 'query': 'man 1 %s', 'error': 'No manual entry for'}]
     \ }
 
 function! GetKeywordInfo(mode)

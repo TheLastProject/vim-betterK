@@ -23,6 +23,7 @@ Perl: perldoc
 PHP: pman
 Python: pydoc
 Ruby: ri
+sh: man 1
 vim: built-in :help
 
 ## License
