@@ -49,11 +49,21 @@ function! GetKeywordInfo(mode)
         return
     endif
 
+    "Use man count if a count is given, like with the standard K command
+    if v:count > 0
+        let l:result = s:RunKeywordLookupCommand('man ' . v:count . ' %s', 'No manual entry for', l:selection)
+
+        "Check if the command returned an error
+        "If it did, log it
+        if l:result[0] != 0
+            let l:helperfails = {'man ' . v:count: l:result[1]}
+        endif
     "Use the internal :help command for vim, instead of a third-party command
-    if &filetype ==# 'vim'
+    elseif &filetype ==# 'vim'
         execute ':help ' . l:selection
+        return
     elseif has_key(s:keywordhelpers, &filetype)
-        "Store possible failures to show the user if we get no result
+        "Prepare to store errors
         let l:helperfails = {}
 
         for helper in s:keywordhelpers[&filetype]
@@ -64,7 +74,7 @@ function! GetKeywordInfo(mode)
                 let l:error = ''
             endif
 
-            "Execute proper type for command (currently, only one type exists)
+            "Execute proper type for command
             if helper['type'] ==# 'command'
                 let l:result = s:RunKeywordLookupCommand(helper['query'], l:error, l:selection)
             elseif helper['type'] ==# 'jsonurl'
@@ -80,36 +90,44 @@ function! GetKeywordInfo(mode)
                 continue
             endif
 
-            "If we have an open buffer, clear it, otherwise create a new one
-            "Based on code in http://www.vim.org/scripts/script.php?script_id=120
-            if exists("s:betterkbufnr") && bufwinnr(s:betterkbufnr) > 0
-                exe 'keepjumps ' . bufwinnr(s:betterkbufnr) . 'wincmd W'
-                exe 'normal! ggdG'
-            else
-                exe 'keepjumps silent! new'
-                let s:betterkbufnr = bufnr('%')
-            end
-
-            "Output result
-            put = l:result[1]
-
-            "Go to the top of the output
-            exe 'normal! gg'
-
-            "Make it temporary so it can be closed easily
-            setlocal buftype=nofile bufhidden=wipe noswapfile
-
-            "We have found and showed the user a result, we are done
-            return
-        endfor
-
-        "No results could be found, tell the user what went wrong
-        for [name, error] in items(l:helperfails)
-            echo name . ': ' . error
+            "We have found a valid result, remove the failure list and break
+            "out of the loop
+            unlet l:helperfails
+            break
         endfor
     else
         echo 'Sorry, no documentation helper known for ' . &filetype
+        return
     endif
+
+    "If things failed, tell the user what went wrong and return
+    "If we get past this, we have a result!
+    if exists("l:helperfails")
+        for [name, error] in items(l:helperfails)
+            echo name . ': ' . error
+        endfor
+
+        return
+    endif
+
+    "If we have an open buffer, clear it, otherwise create a new one
+    "Based on code in http://www.vim.org/scripts/script.php?script_id=120
+    if exists("s:betterkbufnr") && bufwinnr(s:betterkbufnr) > 0
+        exe 'keepjumps ' . bufwinnr(s:betterkbufnr) . 'wincmd W'
+        exe 'normal! ggdG'
+    else
+        exe 'keepjumps silent! new'
+        let s:betterkbufnr = bufnr('%')
+    end
+
+    "Output result
+    put = l:result[1]
+
+    "Go to the top of the output
+    exe 'normal! gg'
+
+    "Make it temporary so it can be closed easily
+    setlocal buftype=nofile bufhidden=wipe noswapfile
 endfunction
 
 function! s:RunKeywordLookupCommand(query, error, selection)
@@ -166,6 +184,6 @@ endif
 
 "Map keys
 if g:betterK_map_keys
-    nnoremap K :call GetKeywordInfo('n')<CR>
-    vnoremap K :call GetKeywordInfo('v')<CR>
+    nnoremap K :<C-U>call GetKeywordInfo('n')<CR>
+    vnoremap K :<C-U>call GetKeywordInfo('v')<CR>
 endif
