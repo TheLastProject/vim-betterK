@@ -17,18 +17,17 @@ prefix K with a count. For example, to check out the selection in man 3, type
     3K
 
 ## How to install
-If you're using Vundle, add
-    Plugin 'https://notabug.org/SylvieLorxu/vim-betterK.git'
+If you're using Vundle, add `Plugin 'TheLastProject/vim-betterK'`
 
 ## Default viewers
-C: man 3; man 2
-Haskell: hoogle; hoogle (online)
-Perl: perldoc
-PHP: pman
-Python: pydoc
-Ruby: ri
-sh: man 1
-vim: built-in :help
+C: man 3; man 2  
+Haskell: hoogle; hoogle (online)  
+Perl: perldoc  
+PHP: pman  
+Python: pydoc  
+Ruby: ri  
+sh: man 1  
+vim: built-in :help  
 
 ## License
 GPLv3+
