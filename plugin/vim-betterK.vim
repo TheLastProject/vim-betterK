@@ -25,7 +25,7 @@ let s:keywordhelpers = {
     \ 'php':
     \   [{'name': 'pman', 'type': 'command', 'query': 'pman %s', 'error': 'No manual entry for'}],
     \ 'python':
-    \   [{'name': 'pydoc', 'type': 'command', 'query': 'pydoc %s', 'error': 'no Python documentation found for'}],
+    \   [{'name': 'pydoc', 'type': 'command', 'query': 'pydoc %s', 'error': 'No Python documentation found for'}],
     \ 'ruby':
     \   [{'name': 'ri', 'type': 'command', 'query': 'ri --format=rdoc %s'}],
     \ 'sh':
